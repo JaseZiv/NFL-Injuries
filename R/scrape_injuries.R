@@ -5,8 +5,8 @@ library(stringr)
 
 ###########################################################################
 # Scraper -----------------------------------------------------------------
-# this scraper gets both injured players, and players placed on IL (two
-# checkboxes are selected on the main_link)
+# this scraper gets "Missed games due to injuries" (one
+# checkbox is selected on the main_link)
 ###########################################################################
 
 # code to get the URLs of each page of data
@@ -23,12 +23,15 @@ all_links <- c(first_link, each_link) %>% unique()
 
 page_number <- c(1, link_nodes %>% html_text())
 
+
 # start scrape:
 all_injuries <- data.frame()
 
 for (i in 1:length(all_links)) {
   print(paste("scraping page:", all_links[i]))
   # url <- read_html(all_links[i])
+
+  Sys.sleep(3)
 
   history <- httr::RETRY("GET",
                          url = all_links[i],
@@ -39,6 +42,20 @@ for (i in 1:length(all_links)) {
   history <- history %>% httr::content()
 
   each_page_df <- history %>% html_nodes(".datatable") %>% html_table() %>% data.frame()
+
+  while(nrow(each_page_df) <= 1) {
+    print("Retrying to scrape page")
+    Sys.sleep(5)
+    history <- httr::RETRY("GET",
+                           url = all_links[i],
+                           times = 5, # the function has other params to tweak its behavior
+                           pause_min = 5,
+                           pause_base = 2)
+
+    history <- history %>% httr::content()
+
+    each_page_df <- history %>% html_nodes(".datatable") %>% html_table() %>% data.frame()
+  }
 
   # each_page_df <- url %>% html_nodes(".datatable") %>% html_table() %>% data.frame()
 
