@@ -57,22 +57,19 @@ for (i in all_injuries_index:length(all_links)) {
 
     each_page_df <- history %>% html_nodes(".datatable") %>% html_table() %>% data.frame()
 
-    while(nrow(each_page_df) <= 1) {
-      print("Retrying to scrape page")
-      Sys.sleep(5)
-      history <- httr::RETRY("GET",
-                             url = all_links[all_injuries_index],
-                             times = 5, # the function has other params to tweak its behavior
-                             pause_min = 5,
-                             pause_base = 2)
-
-      history <- history %>% httr::content()
-
-      each_page_df <- history %>% html_nodes(".datatable") %>% html_table() %>% data.frame()
-    }
-
-
-    # each_page_df <- url %>% html_nodes(".datatable") %>% html_table() %>% data.frame()
+    # while(nrow(each_page_df) <= 1) {
+    #   print("Retrying to scrape page")
+    #   Sys.sleep(5)
+    #   history <- httr::RETRY("GET",
+    #                          url = all_links[all_injuries_index],
+    #                          times = 5, # the function has other params to tweak its behavior
+    #                          pause_min = 5,
+    #                          pause_base = 2)
+    #
+    #   history <- history %>% httr::content()
+    #
+    #   each_page_df <- history %>% html_nodes(".datatable") %>% html_table() %>% data.frame()
+    # }
 
     columnNames <- each_page_df[1,] %>% as.character()
 
